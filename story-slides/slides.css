@@ -1,0 +1,313 @@
+/**
+ * Story Slides - Narrative Overlays for eBird Data Storytelling
+ * Creates full-screen takeovers with fade-in page reveals
+ */
+
+/* ========================================
+   PAGE FADE-IN FROM BLACK
+   ======================================== */
+
+/* Hide page content initially, fade in after story */
+body.story-loading main,
+body.story-loading .dot-nav,
+body.story-loading .nav-arrow,
+body.story-loading .map-switch,
+body.story-loading .side-panel,
+body.story-loading .date-display {
+  opacity: 0;
+}
+
+body.story-complete main,
+body.story-complete .dot-nav,
+body.story-complete .nav-arrow,
+body.story-complete .map-switch,
+body.story-complete .side-panel,
+body.story-complete .date-display {
+  animation: fadeInPage 1.2s ease-out forwards;
+}
+
+@keyframes fadeInPage {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   BASE STORY SLIDE STYLES
+   ======================================== */
+
+/* Full-screen takeover slides */
+.story-slide {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
+}
+
+.story-slide.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.story-slide.exiting {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease-out;
+}
+
+/* Slide backgrounds */
+.story-slide--dark {
+  background: #000000;
+}
+
+.story-slide--gradient {
+  background: #000000;
+}
+
+.story-slide--transparent {
+  background: transparent;
+}
+
+/* ========================================
+   SLIDE CONTENT CONTAINER
+   ======================================== */
+.story-content {
+  max-width: 900px;
+  padding: 60px 40px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  transition-delay: 0.15s;
+}
+
+.story-slide.active .story-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========================================
+   TYPOGRAPHY - SPARSE & POWERFUL
+   ======================================== */
+
+/* Large impact number */
+.story-number {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: clamp(42px, 10vw, 100px);
+  font-weight: 300;
+  color: #ffffff;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.story-number--accent {
+  color: #5BA3CF;
+}
+
+/* Supporting text below number */
+.story-subtext {
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: clamp(14px, 2.5vw, 22px);
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.5;
+  max-width: 600px;
+  margin: 0 auto;
+  letter-spacing: 0.01em;
+}
+
+/* Main narrative text */
+.story-text {
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: clamp(18px, 3.5vw, 28px);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+  letter-spacing: 0;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.story-text strong {
+  font-weight: 400;
+  color: #ffffff;
+}
+
+/* ========================================
+   CLICK-TO-START PROMPT
+   ======================================== */
+.story-click-prompt {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.05em;
+  animation: pulsePrompt 2s ease-in-out infinite;
+  transition: opacity 0.5s ease-out;
+}
+
+.story-click-prompt.fade-out {
+  opacity: 0;
+}
+
+@keyframes pulsePrompt {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Hide content until click for wait-for-click slides */
+.story-slide--waiting .story-subtext {
+  opacity: 0;
+  transition: opacity 0.8s ease-out;
+}
+
+.story-slide--waiting.clicked .story-subtext {
+  opacity: 1;
+  transition-delay: 0.5s;
+}
+
+/* ========================================
+   CONTEXTUAL OVERLAY SLIDES
+   ======================================== */
+.story-overlay {
+  position: fixed;
+  z-index: 8000;
+  padding: 20px 28px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  max-width: 400px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.story-overlay.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Overlay positions */
+.story-overlay--bottom-center {
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+}
+
+.story-overlay--bottom-center.active {
+  transform: translateX(-50%) translateY(0);
+}
+
+.story-overlay--bottom-left {
+  bottom: 100px;
+  left: 40px;
+}
+
+.story-overlay--bottom-right {
+  bottom: 100px;
+  right: 40px;
+}
+
+.story-overlay--top-center {
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+}
+
+.story-overlay--top-center.active {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Overlay text */
+.story-overlay__text {
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.story-overlay__text strong {
+  color: #5BA3CF;
+  font-weight: 600;
+}
+
+
+
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+@media (max-width: 768px) {
+  .story-content {
+    padding: 40px 24px;
+  }
+  
+  .story-number {
+    font-size: clamp(36px, 15vw, 80px);
+  }
+  
+  .story-text {
+    font-size: clamp(18px, 5vw, 28px);
+  }
+  
+  .story-overlay {
+    left: 20px;
+    right: 20px;
+    max-width: none;
+    transform: none;
+  }
+  
+  .story-overlay--bottom-center,
+  .story-overlay--bottom-left,
+  .story-overlay--bottom-right {
+    bottom: 80px;
+    left: 20px;
+    right: 20px;
+  }
+  
+  .story-overlay--bottom-center.active {
+    transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .story-content {
+    padding: 30px 20px;
+  }
+  
+  .story-overlay__text {
+    font-size: 14px;
+  }
+  
+  .story-continue {
+    padding: 10px 20px;
+  }
+}
+
+
