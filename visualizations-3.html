@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Miles from Home • Visualizations 3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="story-slides/slides.css">
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+</head>
+<body>
+
+  <!-- Fixed Dot Navigation -->
+  <nav class="dot-nav" aria-label="Page sections">
+    <button class="nav-dot" data-section="1" aria-label="Landing" tabindex="0"></button>
+    <button class="nav-dot" data-section="2" aria-label="Interactive Globe" tabindex="0"></button>
+    <button class="nav-dot" data-section="3" aria-label="Migration vs Temperature" tabindex="0"></button>
+    <button class="nav-dot" data-section="4" aria-label="Migration Timing" tabindex="0"></button>
+    <button class="nav-dot" data-section="5" aria-label="Temperature Correlation" tabindex="0"></button>
+    <button class="nav-dot" data-section="6" aria-label="Heatmap" tabindex="0"></button>
+    <button class="nav-dot" data-section="7" aria-label="Get Involved" tabindex="0"></button>
+  </nav>
+
+  <!-- Navigation Arrows -->
+  <button id="nav-arrow-prev" class="nav-arrow nav-arrow-left" aria-label="Previous page">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
+  <button id="nav-arrow-next" class="nav-arrow nav-arrow-right" aria-label="Next page">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </button>
+
+  <main>
+    <section id="section-13" class="viewport-section section-viz">
+      <div class="viz-container-full">
+        <h1 class="viz-title">Global Migration Density</h1>
+
+        <!-- Seasonal Density Heatmap (Full Width) -->
+        <div class="viz-card" style="flex: 1; min-height: 0;">
+          <h2>Seasonal Density Heatmap</h2>
+          <p style="margin-bottom: 16px; color: #9aa0a6; font-size: 13px;">Watch migration unfold week by week. Density clusters shift with the seasons—northward in spring as temperatures rise, southward in fall as cold fronts push through. The globe view also supports temperature overlay mode to see birds moving against the thermal backdrop.</p>
+          <div class="heatmap-controls">
+            <div class="species-control">
+              <label for="species-select">Select Species:</label>
+              <select id="species-select">
+                <option value="redkno">Red Knot</option>
+                <option value="barswa">Barn Swallow</option>
+                <option value="cangoo">Canada Goose</option>
+                <option value="gresni">Great Snipe</option>
+                <option value="sancra">Sandhill Crane</option>
+                <option value="spwduc">Wood Duck</option>
+                <option value="westan">Western Tanager</option>
+              </select>
+            </div>
+            <div class="play-control">
+              <button id="play-button">Play</button>
+              <label for="speed-select">Speed:</label>
+              <select id="speed-select">
+                <option value="1">1x</option>
+                <option value="2">2x</option>
+                <option value="4">4x</option>
+              </select>
+            </div>
+            <div class="slider-control">
+              <div id="frame-label">Week:</div>
+              <input type="range" id="frame-slider" min="0" max="1" step="1" value="0">
+            </div>
+          </div>
+          <div style="flex: 1; min-height: 0; display: flex; flex-direction: column;">
+            <svg id="heatmap-svg" style="flex: 1; min-height: 0; width: 100%;"></svg>
+            <svg id="legend-svg" width="100%" height="70" style="margin-top:10px; flex-shrink: 0;"></svg>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Visualization Scripts -->
+  <script src="plots/heatmap_plot.js" defer></script>
+
+  <!-- Story Slides -->
+  <script src="story-slides/slide-content.js"></script>
+  <script src="story-slides/slides.js"></script>
+
+  <!-- Page Navigation -->
+  <script src="js/page-navigation.js"></script>
+</body>
+</html>
+

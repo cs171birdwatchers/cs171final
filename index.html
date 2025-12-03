@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Miles from Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./story-slides/slides.css">
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+  </head>
+  <body>
+    
+    <!-- Fixed Dot Navigation -->
+    <nav class="dot-nav" aria-label="Page sections">
+      <button class="nav-dot" data-section="1" aria-label="Landing" tabindex="0"></button>
+      <button class="nav-dot" data-section="2" aria-label="Interactive Globe" tabindex="0"></button>
+      <button class="nav-dot" data-section="3" aria-label="Migration vs Temperature" tabindex="0"></button>
+      <button class="nav-dot" data-section="4" aria-label="Migration Timing" tabindex="0"></button>
+      <button class="nav-dot" data-section="5" aria-label="Temperature Correlation" tabindex="0"></button>
+      <button class="nav-dot" data-section="6" aria-label="Heatmap" tabindex="0"></button>
+      <button class="nav-dot" data-section="7" aria-label="Get Involved" tabindex="0"></button>
+    </nav>
+
+    <!-- Navigation Arrows -->
+    <button id="nav-arrow-next" class="nav-arrow nav-arrow-right" aria-label="Next page">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
+
+    <main>
+      <!-- SECTION 1: LANDING PAGE -->
+      <section id="section-1" class="viewport-section section-landing">
+        <!-- Background Globe -->
+        <div class="background-globe-container" aria-hidden="true">
+          <svg id="background-globe" viewBox="0 0 900 900" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+
+        <div class="hero">
+          <div class="text-card">
+            <h1 class="title">Miles from Home</h1>
+            <p class="lead">
+              Every year, billions of birds execute one of nature's most extraordinary performances—journeys so demanding they represent biological marvels of navigation and endurance. Barn swallows weighing less than an ounce travel 7,250 miles annually between continents, covering up to 200 kilometers daily. Red knots fly up to 19,000 miles each year—roughly the distance from Earth toward the moon. These aren't random flights; they're essential connections linking ecosystems across hemispheres, ancient pathways carved into genetic memory over millions of years. Yet these routes face unprecedented threats from habitat loss, climate change, and human development. Explore the data below to witness these extraordinary journeys.
+            </p>
+            <div class="scroll-indicator">
+              <span>Click arrow to explore</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Background Globe -->
+    <script src="js/background-globe.js"></script>
+
+    <!-- Story Slides -->
+    <script src="story-slides/slide-content.js"></script>
+    <script src="story-slides/slides.js"></script>
+
+    <!-- Page Navigation -->
+    <script src="js/page-navigation.js"></script>
+  </body>
+</html>

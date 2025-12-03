@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Miles from Home • Migration Timing by Species</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="./story-slides/slides.css">
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+  <style>
+    .section-viz {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .viz-split-layout {
+      display: flex;
+      width: 85%;
+      height: 85vh;
+      gap: 20px;
+      padding: 20px;
+      box-sizing: border-box;
+      margin: 0 auto;
+      align-items: center;
+      justify-content: center;
+    }
+    .viz-main-area {
+      flex: 0 0 75%;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
+    .viz-controls-area {
+      flex: 0 0 25%;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      overflow-y: auto;
+    }
+    .viz-controls-area h2 {
+      margin: 0 0 12px 0;
+      color: #fafafa;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .viz-controls-area p {
+      margin: 0 0 20px 0;
+      color: #cfd2d6;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .species-checkboxes-vertical {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .update-button {
+      width: 100%;
+      padding: 12px 24px;
+      background: #2c7be5;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .update-button:hover {
+      background: #1a5dc9;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(44, 123, 229, 0.3);
+    }
+    .update-button:active {
+      transform: translateY(0);
+    }
+    .update-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .viz-card-full {
+      flex: 1;
+      min-height: 0;
+      border: 1px solid #262626;
+      padding: 20px;
+      border-radius: 16px;
+      background: #111111;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+      display: flex;
+      flex-direction: column;
+    }
+    .viz-card-full h2 {
+      margin: 0 0 8px 0;
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .viz-card-full p {
+      margin: 0 0 12px 0;
+      color: #9aa0a6;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .viz-card-full canvas {
+      flex: 1;
+      min-height: 0;
+      max-height: 100%;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fixed Dot Navigation -->
+  <nav class="dot-nav" aria-label="Page sections">
+    <button class="nav-dot" data-section="1" aria-label="Landing" tabindex="0"></button>
+    <button class="nav-dot" data-section="2" aria-label="Interactive Globe" tabindex="0"></button>
+    <button class="nav-dot" data-section="3" aria-label="Migration vs Temperature" tabindex="0"></button>
+    <button class="nav-dot" data-section="4" aria-label="Migration Timing" tabindex="0"></button>
+    <button class="nav-dot" data-section="5" aria-label="Temperature Correlation" tabindex="0"></button>
+    <button class="nav-dot" data-section="6" aria-label="Heatmap" tabindex="0"></button>
+    <button class="nav-dot" data-section="7" aria-label="Get Involved" tabindex="0"></button>
+  </nav>
+
+  <!-- Navigation Arrows -->
+  <button id="nav-arrow-prev" class="nav-arrow nav-arrow-left" aria-label="Previous page">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
+  <button id="nav-arrow-next" class="nav-arrow nav-arrow-right" aria-label="Next page">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </button>
+
+  <main>
+    <section id="section-9" class="viewport-section section-viz">
+      <div class="viz-split-layout">
+        <!-- Main Visualization Area (75% width) -->
+        <div class="viz-main-area">
+          <div class="viz-card-full">
+            <h2>Migration Timing by Species</h2>
+            <p>Daily observation counts across the year for selected species, highlighting peak migration periods.</p>
+            <canvas id="migrationChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Controls Area (25% width) -->
+        <div class="viz-controls-area">
+          <h2>Select Species</h2>
+          <p>Choose one or more species to display. The chart updates automatically.</p>
+          <div class="species-checkboxes-vertical">
+            <label class="species-checkbox-label">
+              <input type="checkbox" class="species-checkbox-lat" value="barswa" checked>
+              <span class="checkbox-custom"></span>
+              <span class="species-name">Barn Swallow</span>
+            </label>
+            <label class="species-checkbox-label">
+              <input type="checkbox" class="species-checkbox-lat" value="cangoo">
+              <span class="checkbox-custom"></span>
+              <span class="species-name">Canada Goose</span>
+            </label>
+            <label class="species-checkbox-label">
+              <input type="checkbox" class="species-checkbox-lat" value="sancra">
+              <span class="checkbox-custom"></span>
+              <span class="species-name">Sandhill Crane</span>
+            </label>
+            <label class="species-checkbox-label">
+              <input type="checkbox" class="species-checkbox-lat" value="redkno">
+              <span class="checkbox-custom"></span>
+              <span class="species-name">Red Knot</span>
+            </label>
+            <label class="species-checkbox-label">
+              <input type="checkbox" class="species-checkbox-lat" value="spwduc">
+              <span class="checkbox-custom"></span>
+              <span class="species-name">Wood Duck</span>
+            </label>
+            <label class="species-checkbox-label">
+              <input type="checkbox" class="species-checkbox-lat" value="westan">
+              <span class="checkbox-custom"></span>
+              <span class="species-name">Western Tanager</span>
+            </label>
+            <label class="species-checkbox-label">
+              <input type="checkbox" class="species-checkbox-lat" value="gresni">
+              <span class="checkbox-custom"></span>
+              <span class="species-name">Great Snipe</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Visualization Scripts -->
+  <script src="plots/migration_plot.js" defer></script>
+
+  <!-- Story Slides -->
+  <script src="story-slides/slide-content.js"></script>
+  <script src="story-slides/slides.js"></script>
+
+  <!-- Page Navigation -->
+  <script src="js/page-navigation.js"></script>
+</body>
+</html>
+

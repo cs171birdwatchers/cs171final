@@ -1,0 +1,1585 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Miles from Home • Globe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./story-slides/slides.css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #121316; /* charcoal */
+      color: #e7e7e7;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    .map-switch {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 10;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 6px 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+    .map-switch select {
+      background: transparent;
+      color: #e7e7e7;
+      border: none;
+      outline: none;
+      font-size: 14px;
+    }
+    .map-switch option {
+      color: #111; /* dropdown native menu text */
+    }
+    .layout {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) 380px;
+      gap: 24px;
+      align-items: center; /* vertical center */
+      padding: 24px;
+    }
+    .globe-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* left-center horizontally by using margin-left rather than centering the column itself */
+      margin-left: clamp(16px, 6vw, 6vw);
+      gap: 12px;
+    }
+    #globe {
+      position: fixed; /* occupy the full viewport and sit behind UI */
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block; 
+      touch-action: none;
+      filter: drop-shadow(0 12px 30px rgba(0,0,0,0.35));
+      transform: none; /* viewer stays aligned with screen; globe offset handled in projection */
+      will-change: transform;
+      z-index: 0; /* ensure it stays under menus */
+    }
+    .date-display {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      font-size: 14px;
+      font-weight: 600;
+      color: #e7e7e7;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      padding: 8px 16px;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      min-width: 120px;
+      text-align: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
+    .voronoi-controls {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      z-index: 10;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 12px 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      display: none;
+    }
+    .voronoi-controls.active {
+      display: block;
+    }
+    .voronoi-controls label {
+      display: block;
+      font-size: 12px;
+      color: #cfd2d6;
+      margin-bottom: 6px;
+    }
+    .voronoi-controls input[type="range"] {
+      width: 200px;
+    }
+    .voronoi-controls .value-display {
+      display: inline-block;
+      margin-left: 8px;
+      font-weight: 600;
+      color: #fafafa;
+    }
+    .temperature-legend {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 10;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 12px 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      display: none;
+    }
+    .temperature-legend.active {
+      display: block;
+    }
+    .temperature-legend-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #cfd2d6;
+      margin-bottom: 8px;
+    }
+    .temperature-legend-scale {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .temperature-legend-gradient {
+      width: 20px;
+      height: 200px;
+      border-radius: 4px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+    .temperature-legend-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #9aa0a6;
+      margin-top: 4px;
+    }
+    .side-panel {
+      position: relative;
+      align-self: start; /* dropdown at top-right */
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+      margin-right: clamp(16px, 6vw, 6vw);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      z-index: 5; /* above the fixed globe */
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .panel-title {
+      margin: 0;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 0.2px;
+      color: #fafafa;
+    }
+    .select {
+      margin-left: auto;
+      background: rgba(255,255,255,0.06);
+      color: #e7e7e7;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 14px;
+      outline: none;
+    }
+    .img-wrap {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .placeholder {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: #9aa0a6;
+      font-size: 13px;
+      text-align: center;
+      padding: 8px;
+    }
+    .bird-content {
+      color: #cfd2d6;
+      font-size: 14px;
+      line-height: 1.55;
+      max-height: calc(80vh - 220px);
+      overflow: auto;
+    }
+    .bird-content h3 {
+      color: #fafafa;
+      margin: 8px 0 6px;
+      font-size: 16px;
+    }
+    .bird-content strong {
+      color: #ffffff;
+    }
+    .note {
+      color: #9aa0a6;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+      .globe-col {
+        margin-left: 0;
+      }
+      .side-panel {
+        margin: 0 clamp(16px, 6vw, 6vw);
+      }
+      #globe {
+        width: 100vw;
+        height: 100vh;
+        transform: none; /* viewer stays aligned with screen on narrow screens */
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Fixed Dot Navigation -->
+  <nav class="dot-nav" aria-label="Page sections">
+    <button class="nav-dot" data-section="1" aria-label="Landing" tabindex="0"></button>
+    <button class="nav-dot" data-section="2" aria-label="Interactive Globe" tabindex="0"></button>
+    <button class="nav-dot" data-section="3" aria-label="Migration vs Temperature" tabindex="0"></button>
+    <button class="nav-dot" data-section="4" aria-label="Migration Timing" tabindex="0"></button>
+    <button class="nav-dot" data-section="5" aria-label="Temperature Correlation" tabindex="0"></button>
+    <button class="nav-dot" data-section="6" aria-label="Heatmap" tabindex="0"></button>
+    <button class="nav-dot" data-section="7" aria-label="Get Involved" tabindex="0"></button>
+  </nav>
+
+  <!-- Navigation Arrows -->
+  <button id="nav-arrow-prev" class="nav-arrow nav-arrow-left" aria-label="Previous page">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
+  <button id="nav-arrow-next" class="nav-arrow nav-arrow-right" aria-label="Next page">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </button>
+
+  <div class="map-switch">
+    <select id="mapMode" aria-label="Select map mode">
+      <option value="density">Bird Density</option>
+      <option value="voronoi">Voronoi</option>
+      <option value="temperature">Temperature Overlay</option>
+      <option value="birds-temperature">Birds + Temperature</option>
+    </select>
+    <label style="margin-left: 20px; display: inline-flex; align-items: center; cursor: pointer;">
+      <input type="checkbox" id="migrationToggle" style="margin-right: 6px; cursor: pointer;">
+      <span>Show Migration Path</span>
+    </label>
+  </div>
+  <div class="voronoi-controls" id="voronoiControls">
+    <label>
+      Density Threshold: <span class="value-display" id="thresholdValue">50</span>
+    </label>
+    <input type="range" id="thresholdSlider" min="0" max="200" value="50" step="5">
+  </div>
+
+  <div class="temperature-legend" id="temperatureLegend">
+    <div class="temperature-legend-title">Temperature (°C)</div>
+    <div class="temperature-legend-scale">
+      <div class="temperature-legend-gradient" id="temperatureGradient"></div>
+      <div class="temperature-legend-labels">
+        <span id="tempMinLabel">-40</span>
+        <span id="tempZeroLabel">0</span>
+        <span id="tempMaxLabel">45</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voronoi Explanation Panel -->
+  <div id="voronoi-explanation-panel" class="explanation-panel hidden">
+    <button class="close-btn" aria-label="Close explanation">&times;</button>
+    <h3>Understanding Voronoi Diagrams</h3>
+    <p>Voronoi diagrams partition space into regions based on proximity to observation points. Each colored cell represents the area closest to a specific bird observation, revealing spatial distribution patterns and density clustering.</p>
+    <p><strong>Interpretation:</strong> Larger cells indicate sparse observations, while smaller cells show dense concentration areas where many birds have been observed.</p>
+  </div>
+
+  <div class="layout">
+    <div class="globe-col">
+      <svg id="globe" viewBox="0 0 900 900" aria-label="Draggable globe showing countries and US states"></svg>
+      <div class="date-display" id="dateDisplay">—</div>
+    </div>
+    <aside class="side-panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Select species</h2>
+        <select id="speciesSelect" class="select" aria-label="Select bird species">
+          <option value="barswa">Barn Swallow</option>
+          <option value="cangoo">Canada Goose</option>
+          <option value="sancra">Sandhill Crane</option>
+          <option value="redkno">Red Knot</option>
+          <option value="spwduc">Wood Duck</option>
+          <option value="westan">Western Tanager</option>
+          <option value="gresni">Great Snipe</option>
+        </select>
+      </div>
+      <div class="img-wrap" id="imgWrap">
+        <img id="speciesImage" alt="Selected species image" />
+        <div class="placeholder" id="placeholder" style="display:none">No image available</div>
+      </div>
+      <div class="bird-content" id="birdContent"></div>
+      <div class="note"> </div>
+    </aside>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+  <script>
+  (function() {
+    const svg = d3.select('#globe');
+    const width = 900, height = 900;
+    const sphere = { type: 'Sphere' };
+
+    const baseScale = 430;
+    const initialK = 1.2; // zoom factor for initial size
+    const initialViewOffsetX = -300; // shift globe left within viewer
+    const initialViewOffsetY = 250;    // keep vertical alignment flush with top
+    const projection = d3.geoOrthographic()
+      .scale(baseScale * initialK)
+      .translate([width / 2 + initialViewOffsetX, height / 2 + initialViewOffsetY])
+      .clipAngle(90);
+    // Start with North America biased into view so overlays are visible initially
+    projection.rotate([-100, -15, 0]);
+
+    const path = d3.geoPath(projection);
+    const g = svg.append('g');
+
+    const defs = svg.append('defs');
+    const grad = defs.append('radialGradient').attr('id', 'oceanGrad');
+    grad.append('stop').attr('offset', '60%').attr('stop-color', '#1a3a52');
+    grad.append('stop').attr('offset', '100%').attr('stop-color', '#0d2438');
+    
+    // Clip path for visible hemisphere
+    defs.append('clipPath')
+      .attr('id', 'globe-clip')
+      .append('path')
+      .attr('d', path(sphere));
+
+    // Base: ocean (opaque to hide back-side elements)
+    g.append('path')
+      .attr('class', 'ocean')
+      .attr('d', path(sphere))
+      .attr('fill', 'url(#oceanGrad)')
+      .attr('opacity', 1.0);
+
+    // Graticule
+    const graticule = d3.geoGraticule10();
+    g.append('path')
+      .attr('class', 'graticule')
+      .attr('d', path(graticule))
+      .attr('fill', 'none')
+      .attr('stroke', '#a9bbda')
+      .attr('stroke-width', 0.6)
+      .attr('opacity', 1.0);
+
+    // Layers for land and borders
+    const landLayer = g.append('g');
+    const borderLayer = g.append('g');
+    const statesLayer = g.append('g');
+    const migrationLayer = g.append('g').attr('clip-path', 'url(#globe-clip)');  // migration path lines (clipped)
+    const heatmapLayer = g.append('g').attr('clip-path', 'url(#globe-clip)');  // heatmap density cells (clipped)
+    const voronoiLayer = g.append('g').attr('clip-path', 'url(#globe-clip)');  // voronoi polygons (clipped)
+    const temperatureLayer = g.append('g').attr('clip-path', 'url(#globe-clip)');  // temperature overlay (clipped)
+
+    Promise.all([
+      d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'),
+      d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')
+    ]).then(([world, us]) => {
+      const countries = topojson.feature(world, world.objects.countries);
+      const countryMesh = topojson.mesh(world, world.objects.countries, (a, b) => a !== b);
+      const states = topojson.feature(us, us.objects.states);
+      const stateMesh = topojson.mesh(us, us.objects.states, (a, b) => a !== b);
+
+      landLayer.selectAll('path.country')
+        .data(countries.features)
+        .join('path')
+        .attr('class', 'country')
+        .attr('d', path)
+        .attr('fill', '#eef1f6')
+        .attr('stroke', 'none')
+        .attr('stroke-width', 0)
+        .attr('vector-effect', 'non-scaling-stroke');
+
+      borderLayer.append('path')
+        .datum(countryMesh)
+        .attr('class', 'borders')
+        .attr('d', path)
+        .attr('fill', 'none')
+        .attr('stroke', '#9aa3af')
+        .attr('stroke-width', 0.6)
+        .attr('opacity', 1.0)
+        .attr('vector-effect', 'non-scaling-stroke');
+
+      statesLayer.append('path')
+        .datum(stateMesh)
+        .attr('class', 'states')
+        .attr('d', path)
+        .attr('fill', 'none')
+        .attr('stroke', '#7b8696')
+        .attr('stroke-width', 0.8)
+        .attr('opacity', 0)
+        .attr('vector-effect', 'non-scaling-stroke');
+
+      // Drag to rotate
+      let startRotate = projection.rotate();
+      let startPos = null;
+
+      const drag = d3.drag()
+        .on('start', (event) => {
+          startRotate = projection.rotate();
+          startPos = [event.x, event.y];
+        })
+        .on('drag', (event) => {
+          if (!startPos) return;
+          const dx = event.x - startPos[0];
+          const dy = event.y - startPos[1];
+          const sensitivity = 0.25; // degrees per pixel
+          const rot = [
+            startRotate[0] + dx * sensitivity,
+            startRotate[1] - dy * sensitivity,
+            startRotate[2]
+          ];
+          projection.rotate(rot);
+          redraw();
+        });
+
+      svg.call(drag);
+
+      // -----------------------------
+      // UI elements
+      // -----------------------------
+      const mapModeEl = document.getElementById('mapMode');
+      const speciesSelectEl = document.getElementById('speciesSelect');
+      const dateDisplayEl = document.getElementById('dateDisplay');
+      const voronoiControlsEl = document.getElementById('voronoiControls');
+      const thresholdSliderEl = document.getElementById('thresholdSlider');
+      const thresholdValueEl = document.getElementById('thresholdValue');
+      const migrationToggleEl = document.getElementById('migrationToggle');
+      const temperatureLegendEl = document.getElementById('temperatureLegend');
+
+      // Helper to format date as month name with year
+      function formatDateAsMonth(dateString) {
+        if (!dateString || dateString === '—') return '—';
+        try {
+          const date = new Date(dateString);
+          return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+        } catch (e) {
+          return '—';
+        }
+      }
+
+      // Helper to check if a point is on the visible hemisphere
+      const RAD = Math.PI / 180;
+      function isFront(lat, lon) {
+        const [rx, ry] = projection.rotate();
+        const λ = lon * RAD, φ = lat * RAD;
+        const λc = -rx * RAD, φc = -ry * RAD;
+        const cosγ = Math.sin(φ) * Math.sin(φc) + Math.cos(φ) * Math.cos(φc) * Math.cos(λ - λc);
+        return cosγ > 0;
+      }
+
+      // -----------------------------
+      // Heatmap: load, render, animate
+      // -----------------------------
+      let heatmapData = null;           // { colorGradient: {min, max}, frames: [{week, cells:[[lon,lat,density], ...]}] }
+      let heatmapTimer = null;
+      let heatmapIndex = 0;
+      let currentHeatmapCells = null;   // cache current frame cells
+      let heatmapColorScale = null;
+      let currentSpecies = null;        // track which species heatmap is loaded
+
+      // -----------------------------
+      // Voronoi: load, render, animate with threshold
+      // -----------------------------
+      let voronoiTimer = null;
+      let voronoiIndex = 0;
+      let currentVoronoiCells = null;
+      let currentThreshold = 50;
+
+      // Temperature: track current day for redraw
+      let currentTemperatureDay = null;
+
+      // Migration path: static lines for overall route
+      let migrationPathData = null;
+      let currentMigrationSpecies = null;
+
+      function redraw() {
+        // Update clip path for visible hemisphere
+        defs.select('#globe-clip path').attr('d', path(sphere));
+        
+        g.select('.ocean').attr('d', path(sphere));
+        g.select('.graticule').attr('d', path(graticule));
+        landLayer.selectAll('path.country').attr('d', path);
+        borderLayer.selectAll('path.borders').attr('d', path);
+        statesLayer.selectAll('path.states').attr('d', path);
+        // Re-render migration path on rotate
+        if (migrationPathData && migrationToggleEl.checked) {
+          renderMigrationPath();
+        }
+        // Re-render heatmap cells on rotate
+        if (currentHeatmapCells) {
+          renderHeatmapFrame(currentHeatmapCells);
+        }
+        // Re-render voronoi on rotate
+        if (currentVoronoiCells) {
+          renderVoronoiFrame(currentVoronoiCells);
+        }
+        // Re-render temperature on rotate
+        if (currentTemperatureDay) {
+          renderTemperatureFrame(currentTemperatureDay);
+        }
+      }
+
+      // Initial scale already set above when creating projection
+
+      function fetchHeatmapOnce(species) {
+        // If species changed or no data yet, reload
+        if (heatmapData && currentSpecies === species) {
+          return Promise.resolve(heatmapData);
+        }
+        
+        // Reset state for new species
+        heatmapData = null;
+        currentSpecies = species;
+        
+        const heatmapFile = `data/${species}_heatmap.json`;
+        console.log('🔵 Loading heatmap for species:', species, 'from', heatmapFile);
+        
+        return fetch(heatmapFile, { cache: 'no-cache' })
+          .then(r => {
+            if (!r.ok) throw new Error(`Failed to load ${heatmapFile}`);
+            return r.json();
+          })
+          .then(j => {
+            if (!j || !Array.isArray(j.frames)) {
+              throw new Error('Invalid heatmap format');
+            }
+            heatmapData = j;
+            console.log('🔵 Loaded heatmap for:', j.speciesName || species, '- Frames:', j.frames.length);
+            
+            // Build color scale: light burnt orange to deep burnt orange
+            const minColor = j.colorGradient?.min || '#E89B6A';
+            const maxColor = j.colorGradient?.max || '#BF5700';
+            // Compute global max density for scale
+            let maxDensity = 0;
+            j.frames.forEach(frame => {
+              frame.cells.forEach(cell => {
+                maxDensity = Math.max(maxDensity, cell[2]);
+              });
+            });
+            heatmapColorScale = d3.scaleLinear()
+              .domain([0, maxDensity])
+              .range([minColor, maxColor])
+              .clamp(true);
+            return heatmapData;
+          });
+      }
+
+      function renderHeatmapFrame(cells) {
+        currentHeatmapCells = cells;
+        console.log('🎨 Rendering heatmap:', cells.length, 'cells');
+        // Filter to only show cells on visible hemisphere
+        const visibleCells = cells.filter(d => isFront(d[1], d[0])); // d[1] is lat, d[0] is lon
+        console.log('🎨 Visible cells:', visibleCells.length);
+        // Draw circles for each cell
+        const circles = heatmapLayer.selectAll('circle.heatcell').data(visibleCells, d => d);
+        circles.join(
+          enter => {
+            const newCircles = enter.append('circle')
+              .attr('class', 'heatcell')
+              .attr('r', 3)
+              .attr('fill', '#BF5700')
+              .attr('fill-opacity', 0.7)
+              .attr('stroke', 'none')
+              .attr('cx', d => {
+                const proj = projection([d[0], d[1]]);
+                return proj?.[0] ?? -9999;
+              })
+              .attr('cy', d => {
+                const proj = projection([d[0], d[1]]);
+                return proj?.[1] ?? -9999;
+              });
+            console.log('🎨 Created', newCircles.size(), 'new circles');
+            return newCircles;
+          },
+          update => update
+            .attr('fill', '#BF5700')
+            .attr('cx', d => projection([d[0], d[1]])?.[0] ?? -9999)
+            .attr('cy', d => projection([d[0], d[1]])?.[1] ?? -9999),
+          exit => exit.remove()
+        );
+      }
+
+      function clearHeatmap() {
+        currentHeatmapCells = null;
+        heatmapLayer.selectAll('*').remove();
+      }
+
+      function stopHeatmap() {
+        if (heatmapTimer) {
+          clearInterval(heatmapTimer);
+          heatmapTimer = null;
+        }
+      }
+
+      function startHeatmap() {
+        console.log('🔵 Starting heatmap...');
+        const species = speciesSelectEl?.value || 'barswa';
+        fetchHeatmapOnce(species).then(data => {
+          console.log('🔵 Heatmap data loaded:', data.frames.length, 'frames');
+          if (!data.frames || data.frames.length === 0) {
+            clearHeatmap();
+            dateDisplayEl.textContent = '—';
+            return;
+          }
+          heatmapIndex = heatmapIndex % data.frames.length;
+          const frame = data.frames[heatmapIndex];
+          console.log('🔵 Rendering frame', heatmapIndex, 'with', frame.cells.length, 'cells');
+          renderHeatmapFrame(frame.cells || []);
+          dateDisplayEl.textContent = formatDateAsMonth(frame.week);
+          stopHeatmap();
+          heatmapTimer = setInterval(() => {
+            heatmapIndex = (heatmapIndex + 1) % data.frames.length;
+            const frame = data.frames[heatmapIndex];
+            renderHeatmapFrame(frame.cells || []);
+            dateDisplayEl.textContent = formatDateAsMonth(frame.week);
+          }, 500); // 0.5s per frame
+        }).catch(err => {
+          console.error('❌ Heatmap error:', err);
+          clearHeatmap();
+          dateDisplayEl.textContent = '—';
+        });
+      }
+
+      function renderVoronoiFrame(cells) {
+        currentVoronoiCells = cells;
+        // Filter cells by threshold AND visibility
+        const filtered = cells.filter(c => c[2] >= currentThreshold && isFront(c[1], c[0])); // c[1] is lat, c[0] is lon
+        if (filtered.length === 0) {
+          voronoiLayer.selectAll('*').remove();
+          return;
+        }
+        // Project points to screen space
+        const points = filtered.map(c => {
+          const proj = projection([c[0], c[1]]);
+          return proj ? { x: proj[0], y: proj[1], density: c[2] } : null;
+        }).filter(p => p !== null);
+        
+        if (points.length < 3) {
+          voronoiLayer.selectAll('*').remove();
+          return;
+        }
+        
+        // Compute Delaunay/Voronoi with extended bounds to cover entire viewport
+        const delaunay = d3.Delaunay.from(points, d => d.x, d => d.y);
+        const voronoi = delaunay.voronoi([-width, -height, width * 2, height * 2]);
+        
+        // Render voronoi cells
+        const polygons = voronoiLayer.selectAll('path.voronoi-cell').data(points, (d, i) => i);
+        polygons.join(
+          enter => enter.append('path')
+            .attr('class', 'voronoi-cell')
+            .attr('d', (d, i) => voronoi.renderCell(i))
+            .attr('fill', d => heatmapColorScale ? heatmapColorScale(d.density) : '#BF5700')
+            .attr('fill-opacity', 0.4)
+            .attr('stroke', '#BF5700')
+            .attr('stroke-width', 1.0)
+            .attr('stroke-opacity', 0.9),
+          update => update
+            .attr('d', (d, i) => voronoi.renderCell(i))
+            .attr('fill', d => heatmapColorScale ? heatmapColorScale(d.density) : '#BF5700'),
+          exit => exit.remove()
+        );
+      }
+
+      function clearVoronoi() {
+        currentVoronoiCells = null;
+        voronoiLayer.selectAll('*').remove();
+      }
+
+      function stopVoronoi() {
+        if (voronoiTimer) {
+          clearInterval(voronoiTimer);
+          voronoiTimer = null;
+        }
+      }
+
+      function startVoronoi() {
+        const species = speciesSelectEl?.value || 'barswa';
+        fetchHeatmapOnce(species).then(data => {
+          if (!data.frames || data.frames.length === 0) {
+            clearVoronoi();
+            dateDisplayEl.textContent = '—';
+            return;
+          }
+          voronoiIndex = voronoiIndex % data.frames.length;
+          const frame = data.frames[voronoiIndex];
+          renderVoronoiFrame(frame.cells || []);
+          dateDisplayEl.textContent = formatDateAsMonth(frame.week);
+          stopVoronoi();
+          voronoiTimer = setInterval(() => {
+            voronoiIndex = (voronoiIndex + 1) % data.frames.length;
+            const frame = data.frames[voronoiIndex];
+            renderVoronoiFrame(frame.cells || []);
+            dateDisplayEl.textContent = formatDateAsMonth(frame.week);
+          }, 500); // 0.5s per frame
+        }).catch(err => {
+          console.error(err);
+          clearVoronoi();
+          dateDisplayEl.textContent = '—';
+        });
+      }
+
+      // Threshold slider
+      thresholdSliderEl.addEventListener('input', e => {
+        currentThreshold = parseFloat(e.target.value);
+        thresholdValueEl.textContent = currentThreshold.toFixed(0);
+        // Re-render current voronoi frame with new threshold
+        if (currentVoronoiCells) {
+          renderVoronoiFrame(currentVoronoiCells);
+        }
+      });
+
+      // -----------------------------
+      // Temperature: load, render, animate (chunked loading)
+      // -----------------------------
+      let temperatureManifest = null;  // Manifest with chunk info
+      let temperatureChunks = {};      // Cache: { "2023-01-A": {days: [...]} }
+      let temperatureAllDays = [];     // Flattened list of all days across chunks
+      let temperatureTimer = null;
+      let temperatureIndex = 0;
+      let temperatureColorScale = null;
+      let temperatureMinT = -40;
+      let temperatureMaxT = 45;
+      let currentLoadingChunk = null;  // Track currently loading chunk
+
+      const normLon = L => ((((+L % 360) + 540) % 360) - 180);
+
+      // Initialize temperature color scale
+      function initTemperatureColorScale() {
+        // Custom color scale: dark blue (coldest) -> light blue (0°C) -> yellow (warm) -> orange (30°C+)
+        temperatureColorScale = (temp) => {
+          if (temp <= 0) {
+            const coldNormalized = (temp - temperatureMinT) / (0 - temperatureMinT);
+            return d3.interpolateRgb('#000080', '#87CEEB')(Math.max(0, Math.min(1, coldNormalized)));
+          } else if (temp <= 30) {
+            const warmNormalized = (temp - 0) / (30 - 0);
+            if (warmNormalized < 0.5) {
+              return d3.interpolateRgb('#87CEEB', '#FFFF00')(warmNormalized / 0.5);
+            } else {
+              return d3.interpolateRgb('#FFFF00', '#FFA500')((warmNormalized - 0.5) / 0.5);
+            }
+          } else {
+            return '#FFA500';
+          }
+        };
+        createTemperatureLegend();
+      }
+
+      // Load the manifest file
+      async function fetchTemperatureManifest() {
+        if (temperatureManifest) return temperatureManifest;
+        
+        const response = await fetch('data/temp_chunks_manifest.json');
+        if (!response.ok) throw new Error('Failed to load temperature manifest');
+        temperatureManifest = await response.json();
+        
+        // Initialize color scale
+        initTemperatureColorScale();
+        
+        // Build flattened day list from manifest (without loading all data)
+        temperatureAllDays = [];
+        for (const chunk of temperatureManifest.chunks) {
+          // Create placeholder entries for each chunk's date range
+          temperatureAllDays.push({
+            chunkPeriod: chunk.period,
+            chunkFile: chunk.file,
+            startDate: chunk.startDate,
+            endDate: chunk.endDate,
+            numDays: chunk.days
+          });
+        }
+        
+        return temperatureManifest;
+      }
+
+      // Load a specific chunk
+      async function loadTemperatureChunk(period) {
+        if (temperatureChunks[period]) return temperatureChunks[period];
+        if (currentLoadingChunk === period) return null; // Already loading
+        
+        currentLoadingChunk = period;
+        const chunk = temperatureManifest.chunks.find(c => c.period === period);
+        if (!chunk) {
+          currentLoadingChunk = null;
+          return null;
+        }
+        
+        console.log(`🌡️ Loading temperature chunk: ${period}`);
+        const response = await fetch(`data/${chunk.file}`);
+        if (!response.ok) {
+          currentLoadingChunk = null;
+          throw new Error(`Failed to load chunk ${period}`);
+        }
+        
+        const data = await response.json();
+        temperatureChunks[period] = data;
+        currentLoadingChunk = null;
+        
+        return data;
+      }
+
+      // Get all days from loaded chunks as a flat array
+      function getAllLoadedDays() {
+        const days = [];
+        for (const chunk of temperatureManifest.chunks) {
+          if (temperatureChunks[chunk.period]) {
+            const chunkData = temperatureChunks[chunk.period];
+            for (const day of chunkData.days) {
+              days.push({
+                key: day.date,
+                date: new Date(day.date),
+                points: day.points.map(p => ({
+                  lat: p.lat,
+                  lon: normLon(p.lon),
+                  t: p.t
+                }))
+              });
+            }
+          }
+        }
+        return days.sort((a, b) => d3.ascending(a.date, b.date));
+      }
+
+      // Preload chunks for smooth playback
+      async function preloadNextChunk(currentChunkIndex) {
+        const nextIndex = (currentChunkIndex + 1) % temperatureManifest.chunks.length;
+        const nextPeriod = temperatureManifest.chunks[nextIndex].period;
+        if (!temperatureChunks[nextPeriod]) {
+          loadTemperatureChunk(nextPeriod).catch(err => {
+            console.warn('Failed to preload chunk:', err);
+          });
+        }
+      }
+
+      // Legacy compatibility function
+      function fetchTemperatureOnce() {
+        return fetchTemperatureManifest().then(async () => {
+          // Load first chunk to get started
+          const firstPeriod = temperatureManifest.chunks[0].period;
+          await loadTemperatureChunk(firstPeriod);
+          // Preload second chunk
+          if (temperatureManifest.chunks.length > 1) {
+            preloadNextChunk(0);
+          }
+          return getAllLoadedDays();
+        });
+      }
+
+      function createTemperatureLegend() {
+        const legendEl = document.getElementById('temperatureLegend');
+        const gradientEl = document.getElementById('temperatureGradient');
+        const minLabelEl = document.getElementById('tempMinLabel');
+        const maxLabelEl = document.getElementById('tempMaxLabel');
+        
+        if (!legendEl || !gradientEl) return;
+        
+        // Clear any existing SVG
+        d3.select(gradientEl).selectAll('*').remove();
+        
+        // Legend display range: use minT from data, but cap max at 60 for display
+        const legendMaxT = 60;
+        
+        // Update labels
+        if (minLabelEl) minLabelEl.textContent = temperatureMinT;
+        if (maxLabelEl) maxLabelEl.textContent = legendMaxT;
+        
+        // Create SVG gradient
+        const svg = d3.select(gradientEl)
+          .append('svg')
+          .attr('width', 20)
+          .attr('height', 200);
+        
+        const defs = svg.append('defs');
+        const gradient = defs.append('linearGradient')
+          .attr('id', 'tempGradient')
+          .attr('x1', '0%')
+          .attr('y1', '100%')
+          .attr('x2', '0%')
+          .attr('y2', '0%');
+        
+        // Create gradient stops from minT to legendMaxT (60)
+        const numStops = 100;
+        for (let i = 0; i <= numStops; i++) {
+          const t = temperatureMinT + (legendMaxT - temperatureMinT) * (i / numStops);
+          const color = temperatureColorScale(t);
+          gradient.append('stop')
+            .attr('offset', `${(i / numStops) * 100}%`)
+            .attr('stop-color', color);
+        }
+        
+        svg.append('rect')
+          .attr('width', 20)
+          .attr('height', 200)
+          .attr('fill', 'url(#tempGradient)');
+      }
+
+      function renderTemperatureFrame(day) {
+        if (!day || !day.points) return;
+        currentTemperatureDay = day;  // cache for redraw on rotation
+        const visible = day.points.filter(p => isFront(p.lat, p.lon));
+        const circles = temperatureLayer.selectAll('circle.temp-point').data(visible, d => d.lat + ',' + d.lon);
+        circles.join(
+          enter => enter.append('circle')
+            .attr('class', 'temp-point')
+            .attr('r', 1.8)
+            .attr('fill', d => temperatureColorScale(d.t))
+            .attr('fill-opacity', 0.8)
+            .attr('stroke', 'none')
+            .attr('cx', d => projection([d.lon, d.lat])[0])
+            .attr('cy', d => projection([d.lon, d.lat])[1]),
+          update => update
+            .attr('fill', d => temperatureColorScale(d.t))
+            .attr('cx', d => projection([d.lon, d.lat])[0])
+            .attr('cy', d => projection([d.lon, d.lat])[1]),
+          exit => exit.remove()
+        );
+      }
+
+      function clearTemperature() {
+        currentTemperatureDay = null;
+        temperatureLayer.selectAll('*').remove();
+      }
+
+      function stopTemperature() {
+        if (temperatureTimer) {
+          clearInterval(temperatureTimer);
+          temperatureTimer = null;
+        }
+      }
+
+      function startTemperature() {
+        console.log('🌡️ Starting temperature overlay (chunked)...');
+        
+        fetchTemperatureManifest().then(async () => {
+          console.log('🌡️ Temperature manifest loaded:', temperatureManifest.chunks.length, 'chunks');
+          
+          if (!temperatureManifest.chunks || temperatureManifest.chunks.length === 0) {
+            clearTemperature();
+            dateDisplayEl.textContent = '—';
+            return;
+          }
+          
+          // State for chunked playback
+          let currentChunkIndex = 0;
+          let currentDayIndex = 0;
+          
+          // Load first chunk
+          const firstPeriod = temperatureManifest.chunks[0].period;
+          await loadTemperatureChunk(firstPeriod);
+          
+          // Preload second chunk
+          if (temperatureManifest.chunks.length > 1) {
+            preloadNextChunk(0);
+          }
+          
+          // Get current chunk's days
+          let currentChunkData = temperatureChunks[firstPeriod];
+          
+          // Render first frame
+          if (currentChunkData && currentChunkData.days.length > 0) {
+            const day = currentChunkData.days[0];
+            const formattedDay = {
+              key: day.date,
+              points: day.points.map(p => ({ lat: p.lat, lon: normLon(p.lon), t: p.t }))
+            };
+            renderTemperatureFrame(formattedDay);
+            dateDisplayEl.textContent = formatDateAsMonth(day.date);
+          }
+          
+          stopTemperature();
+          
+          // Chunked animation loop
+          temperatureTimer = setInterval(async () => {
+            // Advance to next day
+            currentDayIndex++;
+            
+            // Check if we need to load next chunk
+            if (!currentChunkData || currentDayIndex >= currentChunkData.days.length) {
+              currentChunkIndex = (currentChunkIndex + 1) % temperatureManifest.chunks.length;
+              currentDayIndex = 0;
+              
+              const nextPeriod = temperatureManifest.chunks[currentChunkIndex].period;
+              
+              // Load chunk if not already loaded
+              if (!temperatureChunks[nextPeriod]) {
+                await loadTemperatureChunk(nextPeriod);
+              }
+              
+              currentChunkData = temperatureChunks[nextPeriod];
+              
+              // Preload next chunk for smooth playback
+              preloadNextChunk(currentChunkIndex);
+            }
+            
+            // Render current day
+            if (currentChunkData && currentChunkData.days[currentDayIndex]) {
+              const day = currentChunkData.days[currentDayIndex];
+              const formattedDay = {
+                key: day.date,
+                points: day.points.map(p => ({ lat: p.lat, lon: normLon(p.lon), t: p.t }))
+              };
+              renderTemperatureFrame(formattedDay);
+              dateDisplayEl.textContent = formatDateAsMonth(day.date);
+            }
+          }, 100); // 10 fps for smooth animation
+          
+        }).catch(err => {
+          console.error('❌ Temperature error:', err);
+          clearTemperature();
+          dateDisplayEl.textContent = '—';
+        });
+      }
+
+      // -----------------------------
+      // Migration Path: static lines showing overall migration route
+      // -----------------------------
+      function fetchMigrationPath(species) {
+        if (migrationPathData && currentMigrationSpecies === species) {
+          return Promise.resolve(migrationPathData);
+        }
+        
+        currentMigrationSpecies = species;
+        const pathFile = `data/${species}_migration.json`;
+        console.log('🔴 Loading migration path for species:', species, 'from', pathFile);
+        
+        return fetch(pathFile, { cache: 'no-cache' })
+          .then(r => {
+            if (!r.ok) throw new Error(`Failed to load ${pathFile}`);
+            return r.json();
+          })
+          .then(j => {
+            migrationPathData = j;
+            console.log('🔴 Loaded migration path:', j.speciesName);
+            return migrationPathData;
+          });
+      }
+
+        function renderMigrationPath() {
+        if (!migrationPathData || !migrationPathData.paths || migrationPathData.paths.length === 0) {
+          clearMigrationPath();
+          return;
+        }
+
+        const color = migrationPathData.color || '#8b0000';
+        
+        const lineGenerator = d3.line()
+          .x(d => projection(d)?.[0] ?? null)
+          .y(d => projection(d)?.[1] ?? null)
+          .defined(d => {
+            const proj = projection(d);
+            return proj && isFront(d[1], d[0]);
+          });
+
+        const pathsData = migrationPathData.paths.map((p, idx) => ({
+          ...p,
+          idx: idx,
+          color: color
+        }));
+
+        const paths = migrationLayer.selectAll('path.migration-path')
+          .data(pathsData, d => d.idx);
+        
+        paths.enter()
+          .append('path')
+          .attr('class', d => `migration-path flyway-${d.idx}`)
+          .attr('fill', 'none')
+          .attr('stroke', d => d.color)
+          .attr('stroke-width', 2.5)
+          .attr('stroke-opacity', 0.8)
+          .attr('stroke-linecap', 'round')
+          .attr('stroke-linejoin', 'round')
+          .merge(paths)
+          .datum(d => d.path)
+          .attr('d', lineGenerator);
+        
+        paths.exit().remove();
+
+        const endpointsData = [];
+        pathsData.forEach(pathData => {
+          if (pathData.northPoint && isFront(pathData.northPoint[1], pathData.northPoint[0])) {
+            const proj = projection(pathData.northPoint);
+            if (proj) {
+              endpointsData.push({
+                type: 'north',
+                idx: pathData.idx,
+                coords: proj,
+                color: pathData.color
+              });
+            }
+          }
+          if (pathData.southPoint && isFront(pathData.southPoint[1], pathData.southPoint[0])) {
+            const proj = projection(pathData.southPoint);
+            if (proj) {
+              endpointsData.push({
+                type: 'south',
+                idx: pathData.idx,
+                coords: proj,
+                color: pathData.color
+              });
+            }
+          }
+        });
+
+        const endpoints = migrationLayer.selectAll('circle.endpoint')
+          .data(endpointsData, d => `${d.type}-${d.idx}`);
+        
+        endpoints.enter()
+          .append('circle')
+          .attr('class', d => `endpoint ${d.type} flyway-${d.idx}`)
+          .attr('r', 5)
+          .attr('stroke', '#ffffff')
+          .attr('stroke-width', 1.5)
+          .attr('opacity', 0.9)
+          .merge(endpoints)
+          .attr('cx', d => d.coords[0])
+          .attr('cy', d => d.coords[1])
+          .attr('fill', d => d.color);
+        
+        endpoints.exit().remove();
+      }
+
+      function clearMigrationPath() {
+        migrationLayer.selectAll('*').remove();
+      }
+
+      function updateMigrationPath() {
+        if (!migrationToggleEl.checked) {
+          clearMigrationPath();
+          return;
+        }
+        
+        const species = speciesSelectEl?.value || 'barswa';
+        fetchMigrationPath(species).then(() => {
+          renderMigrationPath();
+        }).catch(err => {
+          console.error('❌ Migration path error:', err);
+          clearMigrationPath();
+        });
+      }
+
+      function startBirdsAndTemperature() {
+        console.log('🔵🌡️ Starting birds + temperature combined mode (chunked)...');
+        const species = speciesSelectEl?.value || 'barswa';
+        
+        // Start both visualizations
+        Promise.all([
+          fetchHeatmapOnce(species),
+          fetchTemperatureManifest()
+        ]).then(async ([heatmapData, manifest]) => {
+          console.log('🔵🌡️ Both datasets loaded');
+          
+          // Initialize heatmap
+          if (!heatmapData.frames || heatmapData.frames.length === 0) {
+            clearHeatmap();
+          } else {
+            heatmapIndex = heatmapIndex % heatmapData.frames.length;
+            const frame = heatmapData.frames[heatmapIndex];
+            renderHeatmapFrame(frame.cells || []);
+            stopHeatmap();
+            heatmapTimer = setInterval(() => {
+              heatmapIndex = (heatmapIndex + 1) % heatmapData.frames.length;
+              const frame = heatmapData.frames[heatmapIndex];
+              renderHeatmapFrame(frame.cells || []);
+              // Don't update date display here - let temperature control it
+            }, 500);
+          }
+          
+          // Initialize chunked temperature (controls date display)
+          if (!manifest.chunks || manifest.chunks.length === 0) {
+            clearTemperature();
+            dateDisplayEl.textContent = '—';
+            return;
+          }
+          
+          // State for chunked playback
+          let currentChunkIndex = 0;
+          let currentDayIndex = 0;
+          
+          // Load first chunk
+          const firstPeriod = manifest.chunks[0].period;
+          await loadTemperatureChunk(firstPeriod);
+          
+          // Preload second chunk
+          if (manifest.chunks.length > 1) {
+            preloadNextChunk(0);
+          }
+          
+          // Get current chunk's days
+          let currentChunkData = temperatureChunks[firstPeriod];
+          
+          // Render first frame
+          if (currentChunkData && currentChunkData.days.length > 0) {
+            const day = currentChunkData.days[0];
+            const formattedDay = {
+              key: day.date,
+              points: day.points.map(p => ({ lat: p.lat, lon: normLon(p.lon), t: p.t }))
+            };
+            renderTemperatureFrame(formattedDay);
+            dateDisplayEl.textContent = formatDateAsMonth(day.date);
+          }
+          
+          stopTemperature();
+          
+          // Chunked animation loop
+          temperatureTimer = setInterval(async () => {
+            currentDayIndex++;
+            
+            if (!currentChunkData || currentDayIndex >= currentChunkData.days.length) {
+              currentChunkIndex = (currentChunkIndex + 1) % manifest.chunks.length;
+              currentDayIndex = 0;
+              
+              const nextPeriod = manifest.chunks[currentChunkIndex].period;
+              
+              if (!temperatureChunks[nextPeriod]) {
+                await loadTemperatureChunk(nextPeriod);
+              }
+              
+              currentChunkData = temperatureChunks[nextPeriod];
+              preloadNextChunk(currentChunkIndex);
+            }
+            
+            if (currentChunkData && currentChunkData.days[currentDayIndex]) {
+              const day = currentChunkData.days[currentDayIndex];
+              const formattedDay = {
+                key: day.date,
+                points: day.points.map(p => ({ lat: p.lat, lon: normLon(p.lon), t: p.t }))
+              };
+              renderTemperatureFrame(formattedDay);
+              dateDisplayEl.textContent = formatDateAsMonth(day.date);
+            }
+          }, 100);
+          
+        }).catch(err => {
+          console.error('❌ Combined mode error:', err);
+          clearHeatmap();
+          clearTemperature();
+          dateDisplayEl.textContent = '—';
+        });
+      }
+
+      function applyMapMode(mode) {
+        console.log('🎯 Applying map mode:', mode);
+        if (mode === 'density') {
+          stopVoronoi();
+          clearVoronoi();
+          stopTemperature();
+          clearTemperature();
+          voronoiControlsEl.classList.remove('active');
+          if (temperatureLegendEl) temperatureLegendEl.classList.remove('active');
+          startHeatmap();
+        } else if (mode === 'voronoi') {
+          stopHeatmap();
+          clearHeatmap();
+          stopTemperature();
+          clearTemperature();
+          voronoiControlsEl.classList.add('active');
+          if (temperatureLegendEl) temperatureLegendEl.classList.remove('active');
+          startVoronoi();
+        } else if (mode === 'temperature') {
+          stopHeatmap();
+          clearHeatmap();
+          stopVoronoi();
+          clearVoronoi();
+          voronoiControlsEl.classList.remove('active');
+          if (temperatureLegendEl) temperatureLegendEl.classList.add('active');
+          startTemperature();
+        } else if (mode === 'birds-temperature') {
+          stopVoronoi();
+          clearVoronoi();
+          stopHeatmap();
+          stopTemperature();
+          voronoiControlsEl.classList.remove('active');
+          if (temperatureLegendEl) temperatureLegendEl.classList.add('active');
+          startBirdsAndTemperature();
+        } else {
+          stopHeatmap();
+          clearHeatmap();
+          stopVoronoi();
+          clearVoronoi();
+          stopTemperature();
+          clearTemperature();
+          voronoiControlsEl.classList.remove('active');
+          if (temperatureLegendEl) temperatureLegendEl.classList.remove('active');
+          dateDisplayEl.textContent = '—';
+        }
+      }
+
+      // Hook UI
+      mapModeEl.addEventListener('change', e => {
+        applyMapMode(e.target.value);
+      });
+      if (speciesSelectEl) {
+        speciesSelectEl.addEventListener('change', () => {
+          const species = speciesSelectEl.value;
+          
+          // Apply coastal emphasis for Red Knot
+          if (species === 'redkno' && window.emphasizeCoastalPaths) {
+            window.emphasizeCoastalPaths();
+          } else if (window.clearCoastalEmphasis) {
+            window.clearCoastalEmphasis();
+          }
+          
+          applyMapMode(mapModeEl.value);
+          migrationPathData = null;
+          updateMigrationPath();
+          
+          // Setup NZ pan for Canada Goose
+          if (species === 'cangoo' && window.setupNewZealandPan) {
+            window.setupNewZealandPan();
+          }
+        });
+      }
+      if (migrationToggleEl) {
+        migrationToggleEl.addEventListener('change', () => {
+          updateMigrationPath();
+        });
+      }
+      // Initialize globe interactions
+      if (window.initGlobeInteractions) {
+        window.initGlobeInteractions(projection, redraw);
+      }
+
+      // Setup Voronoi panel
+      if (window.setupVoronoiPanel) {
+        window.setupVoronoiPanel();
+      }
+
+      // Autoplay if current selection is "density" or "voronoi"
+      applyMapMode(mapModeEl.value);
+    });
+  })();
+
+  // UI: Species selector, image fallback, and content
+  (function() {
+    const speciesMap = {
+      barswa: {
+        name: 'BARN SWALLOW (Hirundo rustica)',
+        img: 'img/Barn_Swallow.jpg'
+      },
+      cangoo: {
+        name: 'CANADA GOOSE (Branta canadensis)',
+        img: 'img/can_goose.jpg'
+      },
+      sancra: {
+        name: 'SANDHILL CRANE (Grus canadensis)',
+        img: 'img/1599px-Sandhill_crane_in_flight_over_Llano_Seco.jpg'
+      },
+      redkno: {
+        name: 'RED KNOT (Calidris canutus rufa)',
+        img: 'img/Rufa_red_knot_(Calidris_canutus_rufa)_in_Delaware_Bay,_New_Jersey.jpg'
+      },
+      spwduc: {
+        name: 'WOOD DUCK (Aix sponsa)',
+        img: 'img/Wood_ducks.JPG'
+      },
+      westan: {
+        name: 'WESTERN TANAGER (Piranga ludoviciana)',
+        img: 'img/Western_tanager_in_Chelsea_(75305)2-2.jpg'
+      },
+      gresni: {
+        name: 'GREAT SNIPE (Gallinago media)',
+        img: 'img/Great_Snipe_(Gallinago_media)_(14180604257).jpg'
+      }
+    };
+
+    const contentById = {
+      barswa: `
+        <h3>BARN SWALLOW (Hirundo rustica)</h3>
+        <em>Length: 17–19 cm (6.5–7.5 inches), including 2–7 cm elongated tail feathers<br>
+        Wingspan: 32–35 cm (12.5–14 inches)<br>
+        Weight: 16–22 grams (0.56–0.78 ounces)</em><br><br>
+        <strong>The Transcontinental Marvel</strong><br><br>
+        These cobalt-blue aerial acrobats undertake migrations spanning three continents, with some populations traveling from Alaska to Argentina—over 5,000 miles each way. European barn swallows breeding in Eurasia have been recorded covering up to 11,660 kilometers (7,250 miles) annually, migrating from breeding grounds as far north as the Arctic Circle to wintering sites in southern Africa.<br><br>
+        <strong>Remarkable Facts:</strong><br>
+        • Weighs less than one ounce yet crosses entire continents<br>
+        • Can fly up to 200 kilometers (125 miles) per day during migration<br>
+        • Flies at speeds between 16–35 mph, though capable of reaching 40+ mph<br>
+        • Chooses wintering locations based on temperature correlations with breeding sites, allowing them to predict conditions weeks in advance and thousands of miles away<br><br>
+        <strong>Conservation Challenge:</strong> Despite being widespread and abundant, local population declines have been noted in some areas, making continued monitoring essential.
+      `,
+      cangoo: `
+        <h3>CANADA GOOSE (Branta canadensis)</h3>
+        <em>Length: 76–110 cm (30–43 inches)<br>
+        Wingspan: 127–185 cm (50–73 inches)<br>
+        Weight: 3–6.5 kg (6.6–14.3 pounds); varies significantly by subspecies</em><br><br>
+        <strong>The Adaptable Voyager</strong><br><br>
+        Canada geese represent one of nature's most recognizable V-formations in the sky, yet their migration story is more complex than most realize. Migrating Canada geese can fly an astonishing 1,500 miles in just 24 hours, and they are capable of flying over 1,000 miles in a single day and can reach speeds of up to 70 miles per hour in favorable winds.<br><br>
+        <strong>Remarkable Facts:</strong><br>
+        • Migration distances range from 2,838 to over 4,000 kilometers depending on breeding population<br>
+        • Travel from 2,000 to 3,000 miles during winter if they can't find open water<br>
+        • You may notice that they also have a strong presence in <a href="#" class="nz-link"><span class="pulse-indicator"></span>New Zealand</a>! They didn't fly there, though. Canada geese were introduced to New Zealand as a game bird in 1905 but are now considered a pest due to crop damage, pasture fouling, and waterway contamination, leading to the removal of their protection status, allowing anyone to hunt them, especially in areas like the Waikato and South Island where they are prevalent.<br>
+        • Can fly at altitudes between 2,000 and 8,000 feet, but have been observed as high as 29,000 feet during extreme weather<br>
+        • About one-third of the U.S. population has become sedentary, adapting to suburban environments year-round<br><br>
+        <strong>Conservation Challenge:</strong> While populations are currently stable, habitat changes and warming winters are altering traditional migration patterns, requiring ongoing adaptation from both the birds and conservation managers.
+      `,
+      sancra: `
+        <h3>SANDHILL CRANE (Grus canadensis)</h3>
+        <em>Length: 100–120 cm (3.3–4 feet)<br>
+        Wingspan: 180–200 cm (6–6.5 feet)<br>
+        Weight: 3.6–5.4 kg (8–12 pounds)</em><br><br>
+        <strong>The Ancient Traveler</strong><br><br>
+        Sandhill cranes are among the oldest living birds on Earth, with fossil evidence dating back 2.5 million years—making their annual migration one of the planet's most ancient wildlife spectacles. Lesser sandhill cranes have the longest migration of any crane species, flying between northeastern Siberia and northern Mexico.<br><br>
+        <strong>Remarkable Facts:</strong><br>
+        • Travel up to 4,000 miles twice annually, with the ability to fly 400–500 miles in a single day<br>
+        • Stand 3–4 feet tall with 6-foot wingspans, weighing just 8–12 pounds<br>
+        • Eighty percent of all North American sandhill cranes—over 600,000 birds—stop along a 75-mile stretch of Nebraska's Platte River during spring migration<br>
+        • Can cover an average of 200 miles per day by using thermals to gain elevation and glide great distances<br>
+        • During their Nebraska stopover, cranes gain approximately 15% of their body weight to fuel the final leg north<br><br>
+        <strong>Conservation Challenge:</strong> Migration is the most dangerous time for cranes due to habitat loss, powerline collisions, and hunting—threats they must survive twice each year.
+      `,
+      redkno: `
+        <h3>RED KNOT (Calidris canutus rufa)</h3>
+        <em>Length: 23–25 cm (9–10 inches)<br>
+        Wingspan: 45–54 cm (18–21 inches)<br>
+        Weight: 135 grams average (4.8 ounces)</em><br><br>
+        <strong>The Hemispheric Champion</strong><br><br>
+        Red knots execute what may be the most extreme migration of any bird in the Western Hemisphere. Each year, some rufa red knots make one of the longest-distance migrations known in the animal kingdom, traveling up to 19,000 miles annually—flying more than 9,000 miles each direction between the southern tip of South America and the Arctic Circle.<br><br>
+        <strong>Remarkable Facts:</strong><br>
+        • Travel up to 20,000 kilometers twice yearly, with some populations flying 8,000–9,000 kilometers between stopover sites in a single non-stop flight<br>
+        • Weigh on average just 135 grams (4.8 ounces) with a wingspan of 45–54 centimeters<br>
+        • One legendary individual, nicknamed "Moonbird," traveled the approximate distance between Earth and the moon during its lifetime<br>
+        • Have one of the largest gizzards relative to body size of any shorebird, allowing them to crush and consume hard-shelled mollusks whole<br>
+        • Up to 90% of the rufa red knot population stops in Delaware Bay each spring, where they gorge on horseshoe crab eggs to double their weight before the final Arctic push<br><br>
+        <strong>Conservation Challenge:</strong> The rufa subspecies is federally listed as threatened under the Endangered Species Act, with populations declining sharply due to horseshoe crab overharvesting, habitat loss, and climate change.
+      `,
+      spwduc: `
+        <h3>WOOD DUCK (Aix sponsa)</h3>
+        <em>Length: 47–54 cm (19–21 inches)<br>
+        Wingspan: 66–73 cm (26–29 inches)<br>
+        Weight: 454–862 grams (16–30.4 ounces)</em><br><br>
+        <strong>The Unexpected Migrant</strong><br><br>
+        Unlike their globe-spanning cousins, wood ducks practice what biologists call "partial migration"—a strategy as fascinating for its flexibility as for its distances. Northern birds are migratory while southern females may be permanent residents, and male migration patterns are particularly unusual: pairs form on wintering grounds and males follow females to their nesting range, meaning a male might migrate far north one spring and only a short distance the next, depending on his mate's origin.<br><br>
+        <strong>Remarkable Facts:</strong><br>
+        • Some individuals travel over 1,000 miles from Alabama to Minnesota, though most make shorter journeys<br>
+        • About one-third of wood ducks in the eastern U.S. are permanent residents, while the remaining two-thirds migrate<br>
+        • Almost 75% of wood ducks in the Pacific Flyway are non-migratory<br>
+        • Were nearly extinct in the early 20th century due to hunting and habitat loss, but recovered through one of wildlife management's great success stories<br>
+        • Follow a unique "boy meets girl, girl flies home, boy follows" migration pattern<br><br>
+        <strong>Conservation Challenge:</strong> Degradation of forested wetlands continues to reduce habitat and availability of natural nesting cavities, though nest box programs have proven highly successful.
+      `,
+      westan: `
+        <h3>WESTERN TANAGER (Piranga ludoviciana)</h3>
+        <em>Length: 16–19 cm (6.3–7.5 inches)<br>
+        Wingspan: 29–32 cm (11.5–12.5 inches)<br>
+        Weight: 24–36 grams (0.85–1.27 ounces)</em><br><br>
+        <strong>The High-Altitude Nomad</strong><br><br>
+        Western tanagers breed farther north than any other tanager species, reaching all the way to northwestern Canada near Yukon—a remarkable feat for a tropical bird family. These brilliant yellow-and-red songbirds connect the coniferous forests of the northern Rockies with the tropical dry forests of Central America.<br><br>
+        <strong>Remarkable Facts:</strong><br>
+        • Migrate from southeastern Alaska and northwestern Canada south to wintering grounds stretching from central Mexico through Costa Rica<br>
+        • In their northernmost breeding range, may spend as little as two months before migrating south again<br>
+        • Migrate at night at very high altitudes, either alone, in pairs, or in groups of up to 30 birds<br>
+        • Often form loose associations with other species during migration, including Townsend's warblers, purple finches, and mountain chickadees<br>
+        • Males display unusual red facial coloring derived from rhodoxanthin, a rare pigment likely obtained from insects in their diet<br><br>
+        <strong>Conservation Challenge:</strong> Listed as "At-Risk" in Canada due to increasing development and urbanization, particularly the destruction of old-growth forests that they favor for breeding.
+      `,
+      gresni: `
+        <h3>GREAT SNIPE (Gallinago media)</h3>
+        <em>Length: 26–30 cm (10.2–11.8 inches)<br>
+        Wingspan: 43–50 cm (17–20 inches)<br>
+        Weight: 140–230 grams (4.9–8.1 ounces)</em><br><br>
+        <strong>The Non-Stop Marathon Flier</strong><br><br>
+        Great snipes hold the record for the fastest sustained migration flight by a bird. These stocky waders execute one of the most impressive non-stop flights in the avian world, traveling from Scandinavia and northern Russia to sub-Saharan Africa—covering distances of over 6,000 kilometers (3,700 miles) in as little as 60-80 hours without stopping.<br><br>
+        <strong>Remarkable Facts:</strong><br>
+        • Fly non-stop for up to 84 hours at speeds averaging 97 km/h (60 mph), with peak speeds reaching 97 km/h<br>
+        • Navigate from breeding grounds in northern Europe and western Siberia to wintering areas in sub-Saharan Africa<br>
+        • Can cross the entire Sahara Desert in a single flight<br>
+        • Relatively rare and secretive, making population studies challenging<br>
+        • Known for spectacular lekking displays during breeding season, where males gather to perform elaborate courtship dances<br><br>
+        <strong>Conservation Challenge:</strong> Listed as Near Threatened by the IUCN due to habitat loss in breeding grounds and hunting pressure along migration routes. Population trends remain uncertain due to their cryptic nature.
+      `
+    };
+
+    const speciesSelect = document.getElementById('speciesSelect');
+    const imgEl = document.getElementById('speciesImage');
+    const placeholder = document.getElementById('placeholder');
+    const contentEl = document.getElementById('birdContent');
+
+    function updateSpecies(id) {
+      const info = speciesMap[id];
+      // image with fallback
+      if (info && info.img) {
+        imgEl.src = info.img;
+        imgEl.style.display = 'block';
+        placeholder.style.display = 'none';
+      } else {
+        imgEl.removeAttribute('src');
+        imgEl.style.display = 'none';
+        placeholder.style.display = 'grid';
+        placeholder.textContent = 'No image available';
+      }
+      // content
+      contentEl.innerHTML = contentById[id] || '';
+    }
+
+    imgEl.onerror = function() {
+      imgEl.style.display = 'none';
+      placeholder.style.display = 'grid';
+      placeholder.textContent = 'No image available';
+    };
+
+    speciesSelect.addEventListener('change', (e) => updateSpecies(e.target.value));
+    // initialize
+    updateSpecies(speciesSelect.value);
+  })();
+  </script>
+
+  <!-- Globe Interactions -->
+  <script src="js/globe-interactions.js"></script>
+
+  <!-- Story Slides -->
+  <script src="story-slides/slide-content.js"></script>
+  <script src="story-slides/slides.js"></script>
+  
+  <!-- Page Navigation -->
+  <script src="js/page-navigation.js"></script>
+</body>
+</html>
+
+

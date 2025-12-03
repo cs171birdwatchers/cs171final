@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Miles from Home • Get Involved</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./story-slides/slides.css">
+    <style>
+      .fade-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #000000;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 9999;
+        transition: opacity 2s ease;
+      }
+      .fade-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      /* Citations Footer */
+      .citations {
+        margin-top: 48px;
+        padding-top: 32px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+      }
+
+      .citations-title {
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 16px;
+      }
+
+      .citations-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .citation {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .citation strong {
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 500;
+      }
+
+      .citation a {
+        color: #5BA3CF;
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+
+      .citation a:hover {
+        color: #7ec4e8;
+        text-decoration: underline;
+      }
+
+      .ai-notice {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.35);
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <!-- Fade Overlay for Transition -->
+    <div class="fade-overlay" id="fadeOverlay"></div>
+
+    <!-- Fixed Dot Navigation -->
+    <nav class="dot-nav" aria-label="Page sections">
+      <button class="nav-dot" data-section="1" aria-label="Landing" tabindex="0"></button>
+      <button class="nav-dot" data-section="2" aria-label="Interactive Globe" tabindex="0"></button>
+      <button class="nav-dot" data-section="3" aria-label="Migration vs Temperature" tabindex="0"></button>
+      <button class="nav-dot" data-section="4" aria-label="Migration Timing" tabindex="0"></button>
+      <button class="nav-dot" data-section="5" aria-label="Temperature Correlation" tabindex="0"></button>
+      <button class="nav-dot" data-section="6" aria-label="Heatmap" tabindex="0"></button>
+      <button class="nav-dot" data-section="7" aria-label="Get Involved" tabindex="0"></button>
+    </nav>
+
+    <!-- Navigation Arrows -->
+    <button id="nav-arrow-prev" class="nav-arrow nav-arrow-left" aria-label="Previous page">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    <button id="nav-arrow-next" class="nav-arrow nav-arrow-right" aria-label="Next page">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
+
+    <main>
+      <!-- SECTION 4: CALL-TO-ACTION -->
+      <section id="section-4" class="viewport-section section-cta">
+        <div class="cta-container">
+          <h2>Join the Global Bird Observation Network</h2>
+          <p class="cta-description">
+            Millions of birdwatchers worldwide contribute data that powers explorations like this. Your observations matter. The eBird app makes it easy to record sightings wherever you are, and every observation helps scientists understand migration patterns, track species populations, and respond to conservation threats.
+          </p>
+          
+          <div class="cta-stats">
+            <div class="stat">
+              <div class="stat-number">100M+</div>
+              <div class="stat-label">observations annually</div>
+            </div>
+            <div class="stat">
+              <div class="stat-number">2B+</div>
+              <div class="stat-label">total records</div>
+            </div>
+            <div class="stat">
+              <div class="stat-number">1,100+</div>
+              <div class="stat-label">scientific papers</div>
+            </div>
+          </div>
+          
+          <div class="cta-buttons">
+            <a href="https://ebird.org/app" class="btn-primary" target="_blank" rel="noopener noreferrer">
+              Download eBird App
+            </a>
+            <a href="https://ebird.org/about" class="btn-secondary" target="_blank" rel="noopener noreferrer">
+              Learn More About eBird
+            </a>
+          </div>
+
+          <!-- Citations & Credits -->
+          <footer class="citations">
+            <div class="citations-title">Data Sources & Credits</div>
+            <div class="citations-list">
+              <div class="citation">
+                <strong>Bird Observation Data:</strong> 
+                <a href="https://ebird.org" target="_blank" rel="noopener noreferrer">eBird</a>, 
+                Cornell Lab of Ornithology
+              </div>
+              <div class="citation">
+                <strong>Weather Data:</strong> 
+                <a href="https://www.noaa.gov" target="_blank" rel="noopener noreferrer">NOAA</a>, 
+                National Oceanic and Atmospheric Administration
+              </div>
+              <div class="citation">
+                <strong>Geographic Data:</strong> 
+                Natural Earth, D3.js World Atlas
+              </div>
+            </div>
+            
+            <div class="citations-title" style="margin-top: 24px;">Image Credits (Wikimedia Commons)</div>
+            <div class="citations-list">
+              <div class="citation">
+                <strong>Barn Swallow:</strong> 
+                <a href="https://commons.wikimedia.org/wiki/File:Barn_Swallow.jpg" target="_blank" rel="noopener noreferrer">Malene Thyssen</a>, CC BY-SA 3.0
+              </div>
+              <div class="citation">
+                <strong>Canada Goose:</strong> 
+                <a href="https://commons.wikimedia.org/wiki/File:Canada_goose_on_Seedskadee_NWR_(14969836987).jpg" target="_blank" rel="noopener noreferrer">USFWS Mountain-Prairie</a>, CC BY 2.0
+              </div>
+              <div class="citation">
+                <strong>Sandhill Crane:</strong> 
+                <a href="https://commons.wikimedia.org/wiki/File:Sandhill_crane_in_flight_over_Llano_Seco.jpg" target="_blank" rel="noopener noreferrer">Yathin S Krishnappa</a>, CC BY-SA 3.0
+              </div>
+              <div class="citation">
+                <strong>Red Knot:</strong> 
+                <a href="https://commons.wikimedia.org/wiki/File:Rufa_red_knot_(Calidris_canutus_rufa)_in_Delaware_Bay,_New_Jersey.jpg" target="_blank" rel="noopener noreferrer">Gregory Breese/USFWS</a>, Public Domain
+              </div>
+              <div class="citation">
+                <strong>Western Tanager:</strong> 
+                <a href="https://commons.wikimedia.org/wiki/File:Western_tanager_in_Chelsea_(75305).jpg" target="_blank" rel="noopener noreferrer">Rhododendrites</a>, CC BY-SA 4.0
+              </div>
+              <div class="citation">
+                <strong>Wood Duck:</strong> 
+                <a href="https://commons.wikimedia.org/wiki/File:Wood_ducks.JPG" target="_blank" rel="noopener noreferrer">Frank Schulenburg</a>, CC BY-SA 4.0
+              </div>
+              <div class="citation">
+                <strong>Great Snipe:</strong> 
+                <a href="https://commons.wikimedia.org/wiki/File:Great_Snipe_(Gallinago_media)_(14180604257).jpg" target="_blank" rel="noopener noreferrer">Ron Knight</a>, CC BY 2.0
+              </div>
+            </div>
+            
+            <div class="ai-notice">
+              This visualization was built with the assistance of generative AI.
+            </div>
+          </footer>
+        </div>
+      </section>
+    </main>
+
+    <!-- Story Slides -->
+    <script src="story-slides/slide-content.js"></script>
+    <script src="story-slides/slides.js"></script>
+
+    <!-- Page Navigation -->
+    <script src="js/page-navigation.js"></script>
+
+    <!-- Inactivity Fade to Publications -->
+    <script>
+      (function() {
+        const INACTIVITY_TIMEOUT = 10000; // 10 seconds
+        const fadeOverlay = document.getElementById('fadeOverlay');
+        let inactivityTimer;
+
+        function resetTimer() {
+          clearTimeout(inactivityTimer);
+          inactivityTimer = setTimeout(startFade, INACTIVITY_TIMEOUT);
+        }
+
+        function startFade() {
+          fadeOverlay.classList.add('active');
+          // Wait for fade animation to complete, then redirect
+          setTimeout(() => {
+            window.location.href = 'publications.html';
+          }, 2000); // matches the 2s transition
+        }
+
+        // Listen for any user activity
+        ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(event => {
+          document.addEventListener(event, resetTimer, { passive: true });
+        });
+
+        // Start the initial timer
+        resetTimer();
+      })();
+    </script>
+  </body>
+</html>
+

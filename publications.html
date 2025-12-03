@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Publications | Miles from Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      body {
+        background: #000000;
+        color: #b8c0c8;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 300;
+        font-size: 4.5px;
+        line-height: 1.8;
+      }
+
+      /* Gradient overlays for fade effect */
+      .fade-top,
+      .fade-bottom {
+        position: fixed;
+        left: 0;
+        right: 0;
+        height: 20vh;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      .fade-top {
+        top: 0;
+        background: linear-gradient(to bottom, 
+          #000000 0%, 
+          #000000 30%,
+          rgba(0, 0, 0, 0.9) 50%,
+          rgba(0, 0, 0, 0) 100%
+        );
+      }
+
+      .fade-bottom {
+        bottom: 0;
+        background: linear-gradient(to top, 
+          #000000 0%, 
+          #000000 30%,
+          rgba(0, 0, 0, 0.9) 50%,
+          rgba(0, 0, 0, 0) 100%
+        );
+      }
+
+      /* Header */
+      .header {
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 100;
+        padding: 24px 40px;
+      }
+
+      .back-link {
+        font-size: 12px;
+        color: #4a5560;
+        text-decoration: none;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: color 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .back-link:hover {
+        color: #7a8a9a;
+      }
+
+      .back-link svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* Counter Title - Top */
+      .counter-title {
+        position: fixed;
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        pointer-events: none;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        font-weight: 300;
+        color: rgba(255, 255, 255, 0.7);
+        white-space: nowrap;
+      }
+
+      .counter-number {
+        display: inline;
+      }
+
+      /* Thank You - Bottom */
+      .thank-you {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        pointer-events: none;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        font-weight: 300;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      /* Columns container */
+      .columns-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        gap: 0;
+        overflow: hidden;
+        padding: 0 20px;
+      }
+
+      .column {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        border-right: 1px solid rgba(91, 163, 207, 0.06);
+      }
+
+      .column:last-child {
+        border-right: none;
+      }
+
+      .column-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 100vh 12px;
+        will-change: transform;
+      }
+
+      /* Publication entries */
+      .publication {
+        margin-bottom: 1.5em;
+        padding: 8px 0;
+        color: rgba(184, 192, 200, 0.6);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+      }
+
+      /* Loading state */
+      .loading {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 18px;
+        color: #4a5560;
+        letter-spacing: 0.1em;
+        z-index: 50;
+      }
+
+      .loading::after {
+        content: '';
+        animation: dots 1.5s infinite;
+      }
+
+      @keyframes dots {
+        0%, 20% { content: ''; }
+        40% { content: '.'; }
+        60% { content: '..'; }
+        80%, 100% { content: '...'; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="fade-top"></div>
+    <div class="fade-bottom"></div>
+    
+    <header class="header">
+      <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Back
+      </a>
+    </header>
+
+    <div class="counter-title">
+      <span class="counter-number" id="counterNumber">0</span> Publications Based on eBird Data
+    </div>
+
+    <div class="thank-you">Thank You</div>
+
+    <div class="loading" id="loading">Loading publications</div>
+
+    <div class="columns-container" id="columnsContainer"></div>
+
+    <script>
+      const NUM_COLUMNS = 10;
+      const baseSpeed = 1.6; // 1/4 of 6.4
+      const staggerAmount = 150; // pixels of stagger between columns
+      const speedVariation = [0.85, 1.0, 0.92, 1.08, 0.95, 1.05, 0.88, 1.03, 0.97, 1.1]; // speed multipliers per column
+      
+      let columns = [];
+      let columnHeights = [];
+      let scrollPositions = [];
+      let totalPublications = 0;
+      let publicationsPerColumn = [];
+      let passedCount = 0;
+
+      const columnsContainer = document.getElementById('columnsContainer');
+      const loading = document.getElementById('loading');
+      const counterNumber = document.getElementById('counterNumber');
+
+      // Load and parse publications
+      async function loadPublications() {
+        try {
+          const response = await fetch('../publications.txt');
+          const text = await response.text();
+          
+          // Parse publications (skip year headers for column display)
+          const lines = text.split('\n');
+          const allPublications = [];
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            // Skip year headers
+            if (/^\d{4}$/.test(trimmed)) continue;
+            allPublications.push(trimmed);
+          }
+
+          totalPublications = allPublications.length;
+
+          // Distribute publications across columns
+          const pubsPerCol = Math.ceil(totalPublications / NUM_COLUMNS);
+          
+          for (let i = 0; i < NUM_COLUMNS; i++) {
+            publicationsPerColumn[i] = [];
+          }
+
+          allPublications.forEach((pub, index) => {
+            const colIndex = index % NUM_COLUMNS;
+            publicationsPerColumn[colIndex].push({ text: pub, globalIndex: index });
+          });
+
+          // Create columns
+          for (let i = 0; i < NUM_COLUMNS; i++) {
+            const column = document.createElement('div');
+            column.className = 'column';
+            
+            const content = document.createElement('div');
+            content.className = 'column-content';
+            content.id = `column-${i}`;
+            
+            // Add publications to this column
+            publicationsPerColumn[i].forEach(pub => {
+              const div = document.createElement('div');
+              div.className = 'publication';
+              div.dataset.globalIndex = pub.globalIndex;
+              div.textContent = pub.text;
+              content.appendChild(div);
+            });
+            
+            column.appendChild(content);
+            columnsContainer.appendChild(column);
+            columns.push(content);
+            
+            // Stagger: each column starts at a different offset
+            scrollPositions[i] = -staggerAmount * i;
+          }
+
+          // Remove loading
+          loading.remove();
+
+          // Calculate column heights and start animation
+          setTimeout(() => {
+            columns.forEach((col, i) => {
+              columnHeights[i] = col.offsetHeight;
+            });
+            startScroll();
+          }, 100);
+
+        } catch (error) {
+          loading.textContent = 'Error loading publications';
+          console.error('Failed to load publications:', error);
+        }
+      }
+
+      function updateCounter() {
+        // Count publications that have scrolled past the top of the viewport
+        const threshold = window.innerHeight * 0.3;
+        let count = 0;
+
+        columns.forEach((col, colIndex) => {
+          const pubs = col.querySelectorAll('.publication');
+          pubs.forEach(pub => {
+            const rect = pub.getBoundingClientRect();
+            if (rect.bottom < threshold) {
+              count++;
+            }
+          });
+        });
+
+        // Smooth counter update
+        if (count !== passedCount) {
+          passedCount = count;
+          counterNumber.textContent = Math.min(passedCount, totalPublications).toLocaleString();
+        }
+      }
+
+      function startScroll() {
+        function animate() {
+          columns.forEach((col, i) => {
+            scrollPositions[i] += baseSpeed * speedVariation[i];
+            
+            // Loop when we've scrolled past all content
+            const maxScroll = columnHeights[i] - window.innerHeight;
+            if (scrollPositions[i] > maxScroll) {
+              scrollPositions[i] = -window.innerHeight * 0.5 - (staggerAmount * i);
+            }
+            
+            col.style.transform = `translateY(${-scrollPositions[i]}px)`;
+          });
+          
+          updateCounter();
+          requestAnimationFrame(animate);
+        }
+        animate();
+      }
+
+      // Start
+      loadPublications();
+    </script>
+  </body>
+</html>
