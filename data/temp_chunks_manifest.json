@@ -1,0 +1,393 @@
+{
+  "chunks": [
+    {
+      "period": "2023-01-A",
+      "file": "temp_chunks/temp_chunk_2023-01-A.json",
+      "startDate": "2023-01-01",
+      "endDate": "2023-01-15",
+      "days": 15,
+      "sizeMB": 11.16
+    },
+    {
+      "period": "2023-01-B",
+      "file": "temp_chunks/temp_chunk_2023-01-B.json",
+      "startDate": "2023-01-16",
+      "endDate": "2023-01-31",
+      "days": 16,
+      "sizeMB": 11.86
+    },
+    {
+      "period": "2023-02-A",
+      "file": "temp_chunks/temp_chunk_2023-02-A.json",
+      "startDate": "2023-02-01",
+      "endDate": "2023-02-15",
+      "days": 13,
+      "sizeMB": 9.26
+    },
+    {
+      "period": "2023-02-B",
+      "file": "temp_chunks/temp_chunk_2023-02-B.json",
+      "startDate": "2023-02-16",
+      "endDate": "2023-02-28",
+      "days": 13,
+      "sizeMB": 9.62
+    },
+    {
+      "period": "2023-03-A",
+      "file": "temp_chunks/temp_chunk_2023-03-A.json",
+      "startDate": "2023-03-01",
+      "endDate": "2023-03-15",
+      "days": 15,
+      "sizeMB": 10.99
+    },
+    {
+      "period": "2023-03-B",
+      "file": "temp_chunks/temp_chunk_2023-03-B.json",
+      "startDate": "2023-03-16",
+      "endDate": "2023-03-31",
+      "days": 16,
+      "sizeMB": 11.94
+    },
+    {
+      "period": "2023-04-A",
+      "file": "temp_chunks/temp_chunk_2023-04-A.json",
+      "startDate": "2023-04-01",
+      "endDate": "2023-04-15",
+      "days": 15,
+      "sizeMB": 10.94
+    },
+    {
+      "period": "2023-04-B",
+      "file": "temp_chunks/temp_chunk_2023-04-B.json",
+      "startDate": "2023-04-16",
+      "endDate": "2023-04-29",
+      "days": 14,
+      "sizeMB": 10.11
+    },
+    {
+      "period": "2023-05-A",
+      "file": "temp_chunks/temp_chunk_2023-05-A.json",
+      "startDate": "2023-05-01",
+      "endDate": "2023-05-15",
+      "days": 15,
+      "sizeMB": 18.23
+    },
+    {
+      "period": "2023-05-B",
+      "file": "temp_chunks/temp_chunk_2023-05-B.json",
+      "startDate": "2023-05-16",
+      "endDate": "2023-05-31",
+      "days": 16,
+      "sizeMB": 19.33
+    },
+    {
+      "period": "2023-06-A",
+      "file": "temp_chunks/temp_chunk_2023-06-A.json",
+      "startDate": "2023-06-01",
+      "endDate": "2023-06-15",
+      "days": 15,
+      "sizeMB": 14.58
+    },
+    {
+      "period": "2023-06-B",
+      "file": "temp_chunks/temp_chunk_2023-06-B.json",
+      "startDate": "2023-06-16",
+      "endDate": "2023-06-30",
+      "days": 15,
+      "sizeMB": 6.97
+    },
+    {
+      "period": "2023-07-A",
+      "file": "temp_chunks/temp_chunk_2023-07-A.json",
+      "startDate": "2023-07-01",
+      "endDate": "2023-07-15",
+      "days": 15,
+      "sizeMB": 7.27
+    },
+    {
+      "period": "2023-07-B",
+      "file": "temp_chunks/temp_chunk_2023-07-B.json",
+      "startDate": "2023-07-16",
+      "endDate": "2023-07-31",
+      "days": 16,
+      "sizeMB": 7.85
+    },
+    {
+      "period": "2023-08-A",
+      "file": "temp_chunks/temp_chunk_2023-08-A.json",
+      "startDate": "2023-08-01",
+      "endDate": "2023-08-15",
+      "days": 15,
+      "sizeMB": 7.34
+    },
+    {
+      "period": "2023-08-B",
+      "file": "temp_chunks/temp_chunk_2023-08-B.json",
+      "startDate": "2023-08-16",
+      "endDate": "2023-08-30",
+      "days": 15,
+      "sizeMB": 7.32
+    },
+    {
+      "period": "2023-09-A",
+      "file": "temp_chunks/temp_chunk_2023-09-A.json",
+      "startDate": "2023-09-01",
+      "endDate": "2023-09-15",
+      "days": 15,
+      "sizeMB": 8.73
+    },
+    {
+      "period": "2023-09-B",
+      "file": "temp_chunks/temp_chunk_2023-09-B.json",
+      "startDate": "2023-09-16",
+      "endDate": "2023-09-30",
+      "days": 15,
+      "sizeMB": 8.46
+    },
+    {
+      "period": "2023-10-A",
+      "file": "temp_chunks/temp_chunk_2023-10-A.json",
+      "startDate": "2023-10-01",
+      "endDate": "2023-10-15",
+      "days": 15,
+      "sizeMB": 8.72
+    },
+    {
+      "period": "2023-10-B",
+      "file": "temp_chunks/temp_chunk_2023-10-B.json",
+      "startDate": "2023-10-16",
+      "endDate": "2023-10-31",
+      "days": 16,
+      "sizeMB": 9.6
+    },
+    {
+      "period": "2023-11-A",
+      "file": "temp_chunks/temp_chunk_2023-11-A.json",
+      "startDate": "2023-11-01",
+      "endDate": "2023-11-15",
+      "days": 15,
+      "sizeMB": 8.85
+    },
+    {
+      "period": "2023-11-B",
+      "file": "temp_chunks/temp_chunk_2023-11-B.json",
+      "startDate": "2023-11-16",
+      "endDate": "2023-11-30",
+      "days": 15,
+      "sizeMB": 9.01
+    },
+    {
+      "period": "2023-12-A",
+      "file": "temp_chunks/temp_chunk_2023-12-A.json",
+      "startDate": "2023-12-01",
+      "endDate": "2023-12-15",
+      "days": 15,
+      "sizeMB": 8.95
+    },
+    {
+      "period": "2023-12-B",
+      "file": "temp_chunks/temp_chunk_2023-12-B.json",
+      "startDate": "2023-12-16",
+      "endDate": "2023-12-30",
+      "days": 15,
+      "sizeMB": 8.99
+    },
+    {
+      "period": "2024-01-A",
+      "file": "temp_chunks/temp_chunk_2024-01-A.json",
+      "startDate": "2024-01-01",
+      "endDate": "2024-01-15",
+      "days": 15,
+      "sizeMB": 14.48
+    },
+    {
+      "period": "2024-01-B",
+      "file": "temp_chunks/temp_chunk_2024-01-B.json",
+      "startDate": "2024-01-16",
+      "endDate": "2024-01-31",
+      "days": 16,
+      "sizeMB": 15.46
+    },
+    {
+      "period": "2024-02-A",
+      "file": "temp_chunks/temp_chunk_2024-02-A.json",
+      "startDate": "2024-02-01",
+      "endDate": "2024-02-15",
+      "days": 15,
+      "sizeMB": 14.39
+    },
+    {
+      "period": "2024-02-B",
+      "file": "temp_chunks/temp_chunk_2024-02-B.json",
+      "startDate": "2024-02-16",
+      "endDate": "2024-02-29",
+      "days": 14,
+      "sizeMB": 13.41
+    },
+    {
+      "period": "2024-03-A",
+      "file": "temp_chunks/temp_chunk_2024-03-A.json",
+      "startDate": "2024-03-01",
+      "endDate": "2024-03-15",
+      "days": 15,
+      "sizeMB": 14.39
+    },
+    {
+      "period": "2024-03-B",
+      "file": "temp_chunks/temp_chunk_2024-03-B.json",
+      "startDate": "2024-03-16",
+      "endDate": "2024-03-31",
+      "days": 16,
+      "sizeMB": 15.44
+    },
+    {
+      "period": "2024-04-A",
+      "file": "temp_chunks/temp_chunk_2024-04-A.json",
+      "startDate": "2024-04-01",
+      "endDate": "2024-04-15",
+      "days": 15,
+      "sizeMB": 14.51
+    },
+    {
+      "period": "2024-04-B",
+      "file": "temp_chunks/temp_chunk_2024-04-B.json",
+      "startDate": "2024-04-16",
+      "endDate": "2024-04-30",
+      "days": 15,
+      "sizeMB": 13.46
+    },
+    {
+      "period": "2024-05-A",
+      "file": "temp_chunks/temp_chunk_2024-05-A.json",
+      "startDate": "2024-05-01",
+      "endDate": "2024-05-15",
+      "days": 15,
+      "sizeMB": 17.95
+    },
+    {
+      "period": "2024-05-B",
+      "file": "temp_chunks/temp_chunk_2024-05-B.json",
+      "startDate": "2024-05-16",
+      "endDate": "2024-05-31",
+      "days": 16,
+      "sizeMB": 18.98
+    },
+    {
+      "period": "2024-06-A",
+      "file": "temp_chunks/temp_chunk_2024-06-A.json",
+      "startDate": "2024-06-01",
+      "endDate": "2024-06-15",
+      "days": 15,
+      "sizeMB": 17.8
+    },
+    {
+      "period": "2024-06-B",
+      "file": "temp_chunks/temp_chunk_2024-06-B.json",
+      "startDate": "2024-06-16",
+      "endDate": "2024-06-30",
+      "days": 15,
+      "sizeMB": 18.02
+    },
+    {
+      "period": "2024-07-A",
+      "file": "temp_chunks/temp_chunk_2024-07-A.json",
+      "startDate": "2024-07-01",
+      "endDate": "2024-07-15",
+      "days": 15,
+      "sizeMB": 17.65
+    },
+    {
+      "period": "2024-07-B",
+      "file": "temp_chunks/temp_chunk_2024-07-B.json",
+      "startDate": "2024-07-16",
+      "endDate": "2024-07-31",
+      "days": 16,
+      "sizeMB": 19.23
+    },
+    {
+      "period": "2024-08-A",
+      "file": "temp_chunks/temp_chunk_2024-08-A.json",
+      "startDate": "2024-08-01",
+      "endDate": "2024-08-15",
+      "days": 15,
+      "sizeMB": 17.97
+    },
+    {
+      "period": "2024-08-B",
+      "file": "temp_chunks/temp_chunk_2024-08-B.json",
+      "startDate": "2024-08-16",
+      "endDate": "2024-08-31",
+      "days": 16,
+      "sizeMB": 18.52
+    },
+    {
+      "period": "2024-09-A",
+      "file": "temp_chunks/temp_chunk_2024-09-A.json",
+      "startDate": "2024-09-01",
+      "endDate": "2024-09-15",
+      "days": 15,
+      "sizeMB": 8.86
+    },
+    {
+      "period": "2024-09-B",
+      "file": "temp_chunks/temp_chunk_2024-09-B.json",
+      "startDate": "2024-09-16",
+      "endDate": "2024-09-30",
+      "days": 15,
+      "sizeMB": 8.78
+    },
+    {
+      "period": "2024-10-A",
+      "file": "temp_chunks/temp_chunk_2024-10-A.json",
+      "startDate": "2024-10-01",
+      "endDate": "2024-10-15",
+      "days": 15,
+      "sizeMB": 8.75
+    },
+    {
+      "period": "2024-10-B",
+      "file": "temp_chunks/temp_chunk_2024-10-B.json",
+      "startDate": "2024-10-16",
+      "endDate": "2024-10-31",
+      "days": 16,
+      "sizeMB": 9.28
+    },
+    {
+      "period": "2024-11-A",
+      "file": "temp_chunks/temp_chunk_2024-11-A.json",
+      "startDate": "2024-11-01",
+      "endDate": "2024-11-15",
+      "days": 15,
+      "sizeMB": 8.65
+    },
+    {
+      "period": "2024-11-B",
+      "file": "temp_chunks/temp_chunk_2024-11-B.json",
+      "startDate": "2024-11-16",
+      "endDate": "2024-11-30",
+      "days": 15,
+      "sizeMB": 8.46
+    },
+    {
+      "period": "2024-12-A",
+      "file": "temp_chunks/temp_chunk_2024-12-A.json",
+      "startDate": "2024-12-01",
+      "endDate": "2024-12-15",
+      "days": 15,
+      "sizeMB": 8.62
+    },
+    {
+      "period": "2024-12-B",
+      "file": "temp_chunks/temp_chunk_2024-12-B.json",
+      "startDate": "2024-12-16",
+      "endDate": "2024-12-30",
+      "days": 15,
+      "sizeMB": 8.53
+    }
+  ],
+  "totalPeriods": 48,
+  "dateRange": {
+    "start": "2023-01-A",
+    "end": "2024-12-B"
+  }
+}
